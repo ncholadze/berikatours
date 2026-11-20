@@ -1,0 +1,189 @@
+# Admin panel config for Pages CMS (https://app.pagescms.org).
+# Defines what can be edited: tours, business settings, photos, gallery.
+# Every save is a commit to GitHub; the site rebuilds automatically (about 2 minutes).
+# If something saved here is invalid (e.g. a language left empty), the build stops and
+# the live site stays unchanged — fix the field and save again.
+
+media:
+  - name: photos
+    label: ფოტოები (ტურები, ვახო, მანქანა)
+    input: src/assets/photos
+    output: /photos
+    categories: [image]
+  - name: gallery
+    label: გალერეა
+    input: src/assets/gallery
+    output: /gallery
+    categories: [image]
+
+components:
+  tourText:
+    type: object
+    fields:
+      - name: title
+        label: სათაური
+        type: string
+        required: true
+      - name: short
+        label: მოკლე აღწერა (ბარათზე)
+        type: string
+        required: true
+      - name: duration
+        label: ხანგრძლივობა (მაგ. "1 დღე")
+        type: string
+        required: true
+      - name: long
+        label: ვრცელი აღწერა
+        type: text
+        required: true
+      - name: stops
+        label: მარშრუტი (გაჩერებები თანმიმდევრობით)
+        type: string
+        list: true
+        required: true
+      - name: season
+        label: სეზონი
+        type: string
+        required: true
+
+content:
+  - name: tours
+    label: ტურები
+    type: collection
+    path: src/content/tours
+    format: json
+    filename: "{primary}.json"
+    view:
+      primary: slug
+      fields: [slug, order, published]
+      sort: [order]
+      default:
+        sort: order
+        order: asc
+    fields:
+      - name: slug
+        label: მისამართი (ლათინურად, მაგ. kazbegi-gergeti)
+        description: გამოჩნდება ბმულში — berikatours.ge/tours/<slug>/. მხოლოდ a-z, 0-9 და ტირე. შექმნის შემდეგ ნუ შეცვლით.
+        type: string
+        required: true
+        pattern:
+          regex: "^[a-z0-9]+(-[a-z0-9]+)*$"
+          message: მხოლოდ პატარა ლათინური ასოები, ციფრები და ტირე
+      - name: order
+        label: რიგითობა საიტზე (1 = პირველი)
+        type: number
+        required: true
+      - name: published
+        label: საიტზე ჩანს
+        type: boolean
+        default: true
+      - name: photo
+        label: ფოტო
+        description: თუ ცარიელია, ჩანს Wikimedia-ს ფოტო ან ფერადი ფონი
+        type: image
+        options:
+          media: photos
+      - name: distanceKm
+        label: მანძილი თბილისიდან (კმ)
+        description: ცარიელი, თუ არ არის საჭირო
+        type: number
+      - name: driveHours
+        label: გზაში დრო (სთ)
+        type: number
+      - name: wiki
+        type: string
+        hidden: true
+      - name: en
+        label: 🇬🇧 English
+        component: tourText
+      - name: ru
+        label: 🇷🇺 Русский
+        component: tourText
+      - name: ka
+        label: 🇬🇪 ქართული
+        component: tourText
+      - name: ar
+        label: 🇸🇦 العربية
+        component: tourText
+      - name: he
+        label: 🇮🇱 עברית
+        component: tourText
+
+  - name: settings
+    label: პარამეტრები და კონტაქტები
+    type: file
+    path: src/content/settings.json
+    format: json
+    fields:
+      - name: phone
+        label: ტელეფონი (WhatsApp, Viber, ზარი)
+        type: string
+        required: true
+      - name: telegram
+        label: Telegram (ნომერი ან @username)
+        type: string
+      - name: email
+        label: ელ-ფოსტა ჯავშნებისთვის
+        type: string
+      - name: years
+        label: გამოცდილება (წელი)
+        type: string
+        required: true
+      - name: car
+        label: მანქანის მოდელი
+        type: string
+        required: true
+      - name: seats
+        label: მგზავრების მაქს. რაოდენობა
+        type: number
+        required: true
+      - name: spokenFlags
+        label: ენების დროშები (ფოტოს გვერდით)
+        type: string
+      - name: spokenLanguages
+        label: ენები, რომლებზეც მძღოლი ლაპარაკობს (ინგლისურად, Google-ისთვის)
+        type: string
+        list: true
+      - name: driverName
+        label: მძღოლის სახელი
+        type: object
+        fields:
+          - { name: en, label: English, type: string, required: true }
+          - { name: ru, label: Русский, type: string, required: true }
+          - { name: ka, label: ქართული, type: string, required: true }
+          - { name: ar, label: العربية, type: string, required: true }
+          - { name: he, label: עברית, type: string, required: true }
+      - name: driverPhoto
+        label: ვახოს ფოტო
+        type: image
+        options:
+          media: photos
+      - name: heroPhoto
+        label: მთავარი ფონის ფოტო (ცარიელი = Wikimedia)
+        type: image
+        options:
+          media: photos
+      - name: carPhotos
+        label: მანქანის ფოტოები (3 ცალი; ცარიელი = Wikimedia)
+        type: image
+        list:
+          max: 3
+        options:
+          media: photos
+      - name: reviews
+        label: შეფასებები (მხოლოდ რეალური!)
+        type: object
+        list: true
+        fields:
+          - { name: name, label: სახელი, type: string, required: true }
+          - { name: from, label: "ქვეყანა (მაგ. 🇩🇪 Germany)", type: string }
+          - { name: text, label: შეფასება, type: text, required: true }
+      - name: googleReview
+        label: Google შეფასების ბმული
+        type: string
+      - name: googleProfile
+        label: Google ბიზნეს პროფილის ბმული
+        type: string
+      - name: disqus
+        label: Disqus shortname (ცარიელი = კომენტარები გამორთულია)
+        type: string
